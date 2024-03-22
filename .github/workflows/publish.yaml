@@ -36,7 +36,7 @@ jobs:
 
       # Build your Next.js project
       - name: Build Next.js site
-        run: npm run build && npm run export
+        run: npm run build
         env:
           # Set environment variables used in your Next.js project, if any
           NEXT_PUBLIC_BASE_PATH: /my-app-static # Example environment variable
