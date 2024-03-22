@@ -1,0 +1,32 @@
+name: Build and Deploy to GitHub Pages
+
+on:
+  push:
+    branches:
+      - main # Adjust this as necessary for your workflow
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3 # Using the latest v3.x release
+
+      - name: Use Node.js
+        uses: actions/setup-node@v3 # Using the latest v3.x release
+        with:
+          node-version: '18' # Specify the Node.js version you want to use
+          cache: 'npm' # Caching dependencies for faster builds
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Build
+        run: npm run build
+        # If you're using `next export` to generate a static site, include it in the build script in package.json or as a separate step here
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./out # Adjust this to your static files directory
