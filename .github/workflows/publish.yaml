@@ -1,10 +1,9 @@
-name: Publish API docs and Next.js Site
-
+# File: .github/workflows/publish.yml
+name: publish-to-github-pages
 on:
   push:
     branches:
-      - main
-  workflow_dispatch:
+      - master
 
 permissions:
   contents: read
@@ -16,41 +15,38 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout 🛎️
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ⚙️ - Cache dependencies ⚡ - Install dependencies 🔧
+        uses: ./.github/workflows/setup-node
+
+      - name: Setup Pages ⚙️
+        uses: actions/configure-pages@v4
+        with:
+          static_site_generator: next
+
+      - name: Build with Next.js 🏗️
+        run: npx next build
+
+      - name: Upload artifact 📡
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+
     runs-on: ubuntu-latest
+    needs: build
+
     steps:
-      - uses: actions/checkout@v4
-
-      # Setup Node.js environment
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18' # Use the Node.js version that matches your development environment
-
-      # Install dependencies
-      - name: Install dependencies
-        run: npm install
-
-      # Build your Next.js project
-      - name: Build Next.js site
-        run: npm run build
-        env:
-          # Set environment variables used in your Next.js project, if any
-          NEXT_PUBLIC_BASE_PATH: /my-app-static # Example environment variable
-
-      # Configure GitHub Pages
-      - uses: actions/configure-pages@v4
-
-      # Upload the Next.js build output to GitHub Pages
-      - uses: actions/upload-pages-artifact@v3
-        with:
-          # Make sure to adjust the path to where your Next.js site is built.
-          # The default output directory for a static export is `out`.
-          path: 'out/'
-
-      # Deploy to GitHub Pages
-      - id: deployment
+      - name: Publish to GitHub Pages 🚀
+        id: deployment
         uses: actions/deploy-pages@v4
